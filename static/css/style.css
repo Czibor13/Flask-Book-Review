@@ -1,0 +1,24 @@
+nav {
+  background-color: #e3f2fd;
+  display: flex;
+}
+
+body {
+  background: black;
+}
+body h1 {
+  margin-top: 30px;
+}
+
+main {
+  color: white;
+  border-radius: 1em;
+  padding: 1em;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-right: -50%;
+  transform: translate(-50%, -50%);
+}
+
+/*# sourceMappingURL=style.css.map */
