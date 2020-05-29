@@ -19,22 +19,25 @@
         <nav class="navbar navbar-light justify-content-center">
             <ul class="nav nav-pills">
                 {% block nav %}
-                <li class="nav-item">
-                    <a class="nav-link" href="/">Home</a>
-                </li>
-                {% if not session['user'] %}
-                <li class="nav-item">
-                    <a class="nav-link" href="/login">Login</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/register">Register</a>
-                </li>
-                {% endif %}
-                {% if session['user'] %}
-                <li class="nav-item">
-                    <a class="nav-link" href="/logout">Logout</a>
-                </li>
-                {% endif %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/books">Books</a>
+                    </li>
+                    {% if not session['user'] %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/login">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/register">Register</a>
+                        </li>
+                    {% endif %}
+                    {% if session['user'] %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/logout">Logout</a>
+                        </li>
+                    {% endif %}
                 {% endblock %}
             </ul>
         </nav>

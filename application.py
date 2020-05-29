@@ -71,3 +71,9 @@ def login():
 def logout():
     session.pop("user", None)
     return redirect(url_for("login"))
+
+# Displays page that allows searching for books.
+# Points to /books/search with results
+@app.route("/books")
+def books():
+    return render_template("books.html")
