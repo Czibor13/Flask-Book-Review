@@ -77,3 +77,50 @@ def logout():
 @app.route("/books")
 def books():
     return render_template("books.html")
+
+# Takes in ISBN, Author, and Title from /books form and queries the database for each non empty search term
+@app.route("/books/search", methods=["POST"])
+def book_search():
+    # Variable from the form in books.html (could be None)
+    isbn = request.form.get("ISBN")
+    author = request.form.get("author")
+    title = request.form.get("title")
+
+    # This variable is the string part of the query that will be added to
+    query = "SELECT * FROM books WHERE"
+    # This dictionary is the query input dictionary that is used when sanitizing inputs
+    query_dict = {}
+    # This list will be joined together to add only the variables with values to the query
+    query_parts = []
+
+    # For each variable, check if the variable has a value. If there is a value, add wildcards, and then add it to the query
+    if isbn:
+        isbn = '%{}%'.format(isbn)
+        query_parts.append("isbn LIKE :isbn")
+        query_dict["isbn"] = isbn
+    if author:
+        author = '%{}%'.format(author)
+        query_parts.append("author LIKE :author")
+        query_dict["author"] = author
+    if title:
+        title = '%{}%'.format(title)
+        query_parts.append("title LIKE :title")
+        query_dict["title"] = title
+
+    # If all the variables are None, display a message telling the user they need to specify at least 1 value
+    if not query_parts:
+        return render_template("book-search.html", message="Please use at least one search term", failed=True)
+    
+    # Construct the final query string
+    query_end = " AND ".join(query_parts)
+    query = query + " " + query_end
+
+    # Store the query results
+    books = db.execute(query, query_dict).fetchall()
+
+    # If no books were found in the query, let the user know
+    if not books:
+        return render_template("book-search.html", message="No books were found for your search terms", failed=True)
+    
+    # Display books found in query
+    return render_template("book-search.html", books=books)

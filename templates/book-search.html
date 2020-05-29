@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+{% block title %}Book-Search{% endblock %}
+{% block header %}Here is what we found{% endblock %}
+{% block main %}
+
+{% if failed %}
+    <div class="alert alert-danger" role="alert" >
+        <p>{{ message }}</p>
+    </div>
+{% endif %}
+
+<ul class="list-unstyled">
+    {% for book in books %}
+        <li>
+            {{ book.title }}
+        </li>
+    {% endfor %}
+</ul>
+
+
+{% endblock %}
