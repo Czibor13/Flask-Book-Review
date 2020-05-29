@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+{% block title %}Login{% endblock %}
+{% block header %}Please enter your account credentials{% endblock %}
+{% block main %}
+
+{% if failed %}
+    <div class="alert alert-danger" role="alert" >
+        <p>{{ message }}</p>
+    </div>
+{% endif %}
+
+{% if success %}
+    <div class="alert alert-success" role="alert" >
+        <p>{{ message }}</p>
+    </div>
+{% endif %}
+
+{% if not success %}
+    <form action="login" method="post">
+        <input type="text" name="username" placeholder="Enter a Username">
+        <input type="password" name="password" placeholder="Enter a Password">
+        <button>Submit</button>
+    <form>
+
+    <p>If you do not have an account, please <a href="/register">register</a>.</p>
+{% endif %}
+
+{% endblock %}
