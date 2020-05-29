@@ -1,4 +1,4 @@
-import os
+import os, requests
 
 from flask import Flask, redirect, render_template, request, session, url_for
 from flask_session import Session
@@ -7,9 +7,12 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 
 app = Flask(__name__)
 
-# Check for environment variable
+# Check for environment variables
 if not os.getenv("DATABASE_URL"):
     raise RuntimeError("DATABASE_URL is not set")
+
+if not os.getenv("GOODREADS_API_KEY"):
+    raise RuntimeError("GOODREADS_API_KEY is not set")
 
 # Configure session to use filesystem
 app.config["SESSION_PERMANENT"] = False
@@ -130,8 +133,22 @@ def book_search():
 def book(isbn):
     # Query for book information
     book = db.execute("SELECT * FROM books WHERE isbn = :isbn", {"isbn": isbn}).fetchone()
+
     # Query for reviews
     reviews = db.execute("SELECT * FROM reviews WHERE isbn = :isbn", {"isbn": isbn}).fetchall()
+
+    # Query Goodreads for ratings and review counts
+    res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": os.getenv("GOODREADS_API_KEY"), "isbns": isbn})
+    message = None
+    gr_book = None
+    if res.status_code == 404:
+        message = "Goodreads does not have any information for this book"
+    else:
+        gr_book = res.json()['books'][0]
+    
+    # If the book is not in the database or in the goodreads database, show an error page instead.
+    if not book and not gr_book:
+        return render_template("error.html", message="ISBN not in database or in Goodreads database.")
 
     # Check if the user is logged in
     if 'user' in session:
@@ -139,9 +156,9 @@ def book(isbn):
         users_review = db.execute("SELECT * FROM reviews WHERE isbn = :isbn AND username = :username", {"isbn": isbn, "username": session['user']}).fetchone()
         # If they do have a review, show that review in a seperate section
         if users_review:
-            return render_template("isbn.html", isbn=isbn, book=book, reviews=reviews, users_review=users_review, user_reviewed=True)
+            return render_template("isbn.html", isbn=isbn, book=book, reviews=reviews, users_review=users_review, gr_book=gr_book, message=message)
 
-    return render_template("isbn.html", isbn=isbn, book=book, reviews=reviews)
+    return render_template("isbn.html", isbn=isbn, book=book, reviews=reviews, gr_book=gr_book, message=message)
 
 # User profile pages that display reviews, and also handle posting new reviews from the isbn form.
 @app.route("/profile/<user>", methods=["GET", "POST"])

@@ -3,6 +3,15 @@
 {% block header %} <i>{{ book.title }}</i> by {{ book.author }} ({{ book.year }}) {% endblock %}
 {% block main %}
 
+{% if gr_book %}
+    <h2>Goodreads Reviews</h2>
+    <p>Average Rating: <strong>{{ gr_book['average_rating'] }}</strong> out of <strong>{{ gr_book['reviews_count'] }}</strong> ratings.</p>
+{% else %}
+    <div class="alert alert-danger" role=alert>
+        <p> {{ message }} </p>
+    </div>
+{% endif %}
+
 <h2>Recent Reviews</h2>
 <ul class="list-unstyled">
     {% for review in reviews %}
@@ -28,7 +37,7 @@
         </ul>
     {% endif %}
 
-    {% if not user_reviewed %}
+    {% if not users_review %}
         <form action="{{ url_for('profile', user=session['user']) }}" method="post">
             <input type="text" name="review" placeholder="Enter a Review">
             <input type="text" name="rating" placeholder="Enter a Rating">
