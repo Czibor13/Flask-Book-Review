@@ -17,4 +17,9 @@
     {% endfor %}
 </ul>
 
+{% if failed %}
+    <p>Can't find your book?</p>
+    <p>Try <a href="{{ url_for('book_add') }}">adding a book</a>!</p>
+{% endif %}
+
 {% endblock %}

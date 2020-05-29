@@ -3,9 +3,15 @@
 {% block header %} {{ user }}&apos;s Reviews {% endblock %}
 {% block main %}
 
+{% if failed %}
+    <div class="alert alert-danger" role=alert>
+        <p> {{ message }} </p>
+    </div>
+{% endif %}
+
 {% if new_review %}
     <div class="alert alert-success" role=alert>
-        <p>New review successfully added!</p>
+        <p></p>
     </div>
 {% endif %}
 

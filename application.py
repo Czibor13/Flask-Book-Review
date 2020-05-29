@@ -157,7 +157,7 @@ def profile(user):
         try:
             rating = request.form.get("rating")
         except ValueError:
-            return render_template("error.html", message="The rating you entered was not a number.")
+            return render_template("user.html", user=user, failed=True, message='The rating you entered was not a number.')
         
         # Add the new review to the database
         db.execute("INSERT INTO reviews (isbn, username, review, rating) values (:isbn, :username, :review, :rating)",
@@ -169,4 +169,29 @@ def profile(user):
     
     # Get all the user's reviews and store the result
     users_reviews = db.execute("SELECT * FROM reviews WHERE username = :username", {"username": user})
-    return render_template("user.html", user=user, users_reviews=users_reviews, new_review=new_review)
+    return render_template("user.html", user=user, users_reviews=users_reviews, new_review=new_review, message="New review successfully added!")
+
+# A form to add individual books to the database
+@app.route("/books/add", methods=["GET","POST"])
+def book_add():
+    if request.method == "POST":
+        # Get the values from the form
+        isbn = request.form.get("ISBN")
+        title = request.form.get("title")
+        author = request.form.get("author")
+        try:
+            year = int(request.form.get("year"))
+        except ValueError:
+            return render_template("books-add.html", failed=True, message='The year you entered was not an integer.')
+        
+        if isbn and title and author and year:
+            # If they all have values, add the book to the database
+            db.execute("INSERT INTO books (title, author, year, isbn) VALUES (:title, :author, :year, :isbn)", 
+                    {"title": title, "author": author, "year": year, "isbn": isbn})
+            db.commit()
+            return render_template("books-add.html", message="Your book has been added to the database.", success=True)
+        else:
+            # If any are none, let the user know they need to fill in all the blanks
+            return render_template("books-add.html", message="Please fill in all of the boxes!", failed=True)
+    else:
+        return render_template("books-add.html")

@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+{% block title %}Add Book{% endblock %}
+{% block header %}What book would you like to add?{% endblock %}
+{% block main %}
+
+{% if success %}
+    <div class="alert alert-success" role=alert>
+        <p> {{ message }} </p>
+    </div>
+{% endif %}
+
+{% if failed %}
+    <div class="alert alert-danger" role=alert>
+        <p> {{ message }} </p>
+    </div>
+{% endif %}
+
+<form action="add" method="post">
+    <input type="text" name="ISBN" placeholder="Enter ISBN">
+    <input type="text" name="author" placeholder="Enter Author">
+    <input type="text" name="title" placeholder="Enter Book Title">
+    <input type="text" name="year" placeholder="Enter Year Published">
+    <button>Add</button>
+<form>
+
+{% endblock %}
