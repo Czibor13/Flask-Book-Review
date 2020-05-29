@@ -124,3 +124,49 @@ def book_search():
     
     # Display books found in query
     return render_template("book-search.html", books=books)
+
+# Displays a page with reviews based off the book's isbn number, which is taken as an argument
+@app.route("/books/<isbn>")
+def book(isbn):
+    # Query for book information
+    book = db.execute("SELECT * FROM books WHERE isbn = :isbn", {"isbn": isbn}).fetchone()
+    # Query for reviews
+    reviews = db.execute("SELECT * FROM reviews WHERE isbn = :isbn", {"isbn": isbn}).fetchall()
+
+    # Check if the user is logged in
+    if 'user' in session:
+        #If they are logged in, see if they have a review
+        users_review = db.execute("SELECT * FROM reviews WHERE isbn = :isbn AND username = :username", {"isbn": isbn, "username": session['user']}).fetchone()
+        # If they do have a review, show that review in a seperate section
+        if users_review:
+            return render_template("isbn.html", isbn=isbn, book=book, reviews=reviews, users_review=users_review, user_reviewed=True)
+
+    return render_template("isbn.html", isbn=isbn, book=book, reviews=reviews)
+
+# User profile pages that display reviews, and also handle posting new reviews from the isbn form.
+@app.route("/profile/<user>", methods=["GET", "POST"])
+def profile(user):
+    # Keep track of if there has been a new review posted
+    new_review = False
+    if request.method == "POST":
+        # Get the users's username
+        username = session['user']
+        # Get the review variables from the isbn form
+        isbn = request.form.get("isbn")
+        review = request.form.get("review")
+        try:
+            rating = request.form.get("rating")
+        except ValueError:
+            return render_template("error.html", message="The rating you entered was not a number.")
+        
+        # Add the new review to the database
+        db.execute("INSERT INTO reviews (isbn, username, review, rating) values (:isbn, :username, :review, :rating)",
+                    {"isbn": isbn, "username": username, "review": review, "rating": rating})
+        db.commit()
+        
+        # A new review has been added
+        new_review = True
+    
+    # Get all the user's reviews and store the result
+    users_reviews = db.execute("SELECT * FROM reviews WHERE username = :username", {"username": user})
+    return render_template("user.html", user=user, users_reviews=users_reviews, new_review=new_review)

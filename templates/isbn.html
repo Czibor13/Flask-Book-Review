@@ -1,0 +1,41 @@
+{% extends "layout.html" %}
+{% block title %} {{ book.isbn }} {% endblock %}
+{% block header %} <i>{{ book.title }}</i> by {{ book.author }} ({{ book.year }}) {% endblock %}
+{% block main %}
+
+<h2>Recent Reviews</h2>
+<ul class="list-unstyled">
+    {% for review in reviews %}
+        <li class="border border-light"></li>>
+            Review by {{ review.username }} rating: {{ review.rating }}
+            <ul class="list-unstyled">
+                <li> {{ review.review }} </li>
+            </ul>
+        </li>
+    {% endfor %}
+</ul>
+
+{% if session['user'] %}
+    {% if user_reviewed %}
+        <h2>Your Review</h2>
+        <ul class="list-unstyled">
+            <li>
+                rating: {{ users_review.rating }}
+                <ul class="list-unstyled">
+                    <li> {{ users_review.review }} </li>
+                </ul>
+            </li>
+        </ul>
+    {% endif %}
+
+    {% if not user_reviewed %}
+        <form action="{{ url_for('profile', user=session['user']) }}" method="post">
+            <input type="text" name="review" placeholder="Enter a Review">
+            <input type="text" name="rating" placeholder="Enter a Rating">
+            <input type="hidden" name="isbn" value="{{ isbn }}">
+            <button>Add Review</button>
+        <form>
+    {% endif %}
+{% endif %}
+
+{% endblock %}

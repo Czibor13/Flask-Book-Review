@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+{% block title %} {{ user }} {% endblock %}
+{% block header %} {{ user }}&apos;s Reviews {% endblock %}
+{% block main %}
+
+{% if new_review %}
+    <div class="alert alert-success" role=alert>
+        <p>New review successfully added!</p>
+    </div>
+{% endif %}
+
+<ul class="list-unstyled">
+    {% for review in users_reviews %}
+        <li class="border border-light"></li>>
+            <a href=" {{url_for('book', isbn=review.isbn)}}">{{ review.isbn }}</a> rating: {{ review.rating }}
+            <ul class="list-unstyled">
+                <li> {{ review.review }} </li>
+            </ul>
+        </li>
+    {% endfor %}
+</ul>
+
+{% endblock %}

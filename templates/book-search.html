@@ -12,10 +12,9 @@
 <ul class="list-unstyled">
     {% for book in books %}
         <li>
-            {{ book.title }}
+            <a href="{{ url_for('book', isbn=book.isbn) }}"> {{ book.title }} </a>
         </li>
     {% endfor %}
 </ul>
-
 
 {% endblock %}
