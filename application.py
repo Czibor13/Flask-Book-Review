@@ -33,7 +33,7 @@ def index():
 def register():
     # Attempts to register the user based on the information given in the register form
     if request.method == "POST":
-        username = request.form.get("username")
+        username = request.form.get("username").lower()
         password = request.form.get("password")
         db.execute("INSERT INTO users (username, password) VALUES (:username, :password)", {"username": username, "password": password})
         db.commit()
@@ -50,7 +50,7 @@ def register():
 def login():
     # Attempts to log in the user based on the information given in the login form
     if request.method =="POST":
-        username = request.form.get("username")
+        username = request.form.get("username").lower()
         password = request.form.get("password")
 
         # Check if there is a matching username and password combo
@@ -172,10 +172,7 @@ def profile(user):
         # Get the review variables from the isbn form
         isbn = request.form.get("isbn")
         review = request.form.get("review")
-        try:
-            rating = request.form.get("rating")
-        except ValueError:
-            return render_template("user.html", user=user, failed=True, message='The rating you entered was not a number.')
+        rating = int(request.form.get("rating"))
         
         # Add the new review to the database
         db.execute("INSERT INTO reviews (isbn, username, review, rating) values (:isbn, :username, :review, :rating)",
@@ -220,6 +217,7 @@ def book_api(isbn):
     book = db.execute("SELECT title, author, year, isbn FROM books WHERE isbn = :isbn", {"isbn": isbn}).fetchone()
     print(book)
 
+    # If the book is not in the database, return 404 error
     if not book:
         return jsonify({"error": "ISBN not in database"}), 404
 
@@ -229,4 +227,3 @@ def book_api(isbn):
 
     # Create the dictionary that will be dumped into a json
     return jsonify({"title": book[0], "author": book[1], "year": book[2], "isbn": book[3], "review_count": reviews[0], "average_score": reviews[1]}), 200
-    

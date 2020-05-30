@@ -39,10 +39,26 @@
 
     {% if not users_review %}
         <form action="{{ url_for('profile', user=session['user']) }}" method="post">
-            <input type="text" name="review" placeholder="Enter a Review">
-            <input type="text" name="rating" placeholder="Enter a Rating">
-            <input type="hidden" name="isbn" value="{{ isbn }}">
-            <button>Add Review</button>
+            <div class="form-group">
+                <label for="review">Enter your Review</label>
+                <input class="form-control form-control-lg" type="text" name="review" placeholder="Enter your Review">
+            </div>
+            <div class="form-group">
+                <label for="rating">Select a Rating</label>
+                <select class="form-control" name="rating">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <input type="hidden" name="isbn" value="{{ isbn }}">
+            </div>
+            <div class="form-group">
+                <button>Add Review</button>
+            </div>
         <form>
     {% endif %}
 {% endif %}
