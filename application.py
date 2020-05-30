@@ -1,11 +1,12 @@
 import os, requests
 
-from flask import Flask, redirect, render_template, request, session, url_for
+from flask import Flask, jsonify, redirect, render_template, request, session, url_for
 from flask_session import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 
 app = Flask(__name__)
+app.config['JSON_SORT_KEYS'] = False
 
 # Check for environment variables
 if not os.getenv("DATABASE_URL"):
@@ -212,3 +213,20 @@ def book_add():
             return render_template("books-add.html", message="Please fill in all of the boxes!", failed=True)
     else:
         return render_template("books-add.html")
+
+@app.route("/api/<isbn>")
+def book_api(isbn):
+    # Query for book information in a specific order
+    book = db.execute("SELECT title, author, year, isbn FROM books WHERE isbn = :isbn", {"isbn": isbn}).fetchone()
+    print(book)
+
+    if not book:
+        return jsonify({"error": "ISBN not in database"}), 404
+
+    # Query for review count and average rating
+    reviews = db.execute("SELECT COUNT(review) AS review_count, AVG(rating) AS average_score FROM reviews WHERE isbn = :isbn", {"isbn": isbn}).fetchone()
+    print(reviews)
+
+    # Create the dictionary that will be dumped into a json
+    return jsonify({"title": book[0], "author": book[1], "year": book[2], "isbn": book[3], "review_count": reviews[0], "average_score": reviews[1]}), 200
+    
