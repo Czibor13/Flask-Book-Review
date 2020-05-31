@@ -136,7 +136,7 @@ def book(isbn):
     book = db.execute("SELECT * FROM books WHERE isbn = :isbn", {"isbn": isbn}).fetchone()
 
     # Query for reviews
-    reviews = db.execute("SELECT * FROM reviews WHERE isbn = :isbn", {"isbn": isbn}).fetchall()
+    reviews = db.execute("SELECT * FROM reviews WHERE isbn = :isbn ORDER BY id DESC", {"isbn": isbn}).fetchall()
 
     # Query Goodreads for ratings and review counts
     res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": os.getenv("GOODREADS_API_KEY"), "isbns": isbn})
@@ -183,7 +183,8 @@ def profile(user):
         new_review = True
     
     # Get all the user's reviews and store the result
-    users_reviews = db.execute("SELECT * FROM reviews WHERE username = :username", {"username": user})
+    users_reviews = db.execute("SELECT r.review, r.rating, r.isbn, books.title FROM reviews r LEFT JOIN books ON books.isbn = r.isbn WHERE r.username = :username", 
+                                {"username": user})
     return render_template("user.html", user=user, users_reviews=users_reviews, new_review=new_review, message="New review successfully added!")
 
 # A form to add individual books to the database

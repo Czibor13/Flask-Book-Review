@@ -20,25 +20,25 @@
             <ul class="nav nav-pills">
                 {% block nav %}
                     <li class="nav-item">
-                        <a class="nav-link" href="/">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/books">Books</a>
+                        <a class="nav-link" href="{{ url_for('index') }}">Home</a>
                     </li>
                     {% if not session['user'] %}
                         <li class="nav-item">
-                            <a class="nav-link" href="/login">Login</a>
+                            <a class="nav-link" href="{{ url_for('login') }}">Login</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="/register">Register</a>
+                            <a class="nav-link" href="{{ url_for('register') }}">Register</a>
                         </li>
                     {% endif %}
                     {% if session['user'] %}
                         <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('books') }}">Books</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" href=" {{url_for('profile', user=session['user']) }} ">Welcome, {{ session["user"] }} </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="/logout">Logout</a>
+                            <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
                         </li>
                     {% endif %}
                 {% endblock %}

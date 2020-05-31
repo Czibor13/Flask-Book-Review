@@ -16,13 +16,21 @@
 {% endif %}
 
 {% if not success %}
-    <form action="login" method="post">
-        <input type="text" name="username" placeholder="Enter a Username">
-        <input type="password" name="password" placeholder="Enter a Password">
-        <button>Submit</button>
+    <form action="{{ url_for('login') }}" method="post">
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" name="username" placeholder="Enter your Username">
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" name="password" placeholder="Enter your Password">
+        </div>
+        <div class="form-group">
+            <button>Submit</button>
+        </div>
     <form>
 
-    <p>If you do not have an account, please <a href="/register">register</a>.</p>
+    <p>If you do not have an account, please <a href="{{ url_for('register') }}">register</a>.</p>
 {% endif %}
 
 {% endblock %}

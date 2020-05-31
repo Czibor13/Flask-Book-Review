@@ -18,7 +18,7 @@
 <ul class="list-unstyled">
     {% for review in users_reviews %}
         <li class="border border-light"></li>>
-            <a href=" {{url_for('book', isbn=review.isbn)}}">{{ review.isbn }}</a> rating: {{ review.rating }}
+            <a href=" {{url_for('book', isbn=review.isbn)}}">{{ review.title }}</a> rating: {{ review.rating }}
             <ul class="list-unstyled">
                 <li> {{ review.review }} </li>
             </ul>

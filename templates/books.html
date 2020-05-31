@@ -3,11 +3,21 @@
 {% block header %}What book would you like to see reviews for?{% endblock %}
 {% block main %}
 
-<form action="books/search" method="post">
-    <input type="text" name="ISBN" placeholder="Enter ISBN">
-    <input type="text" name="author" placeholder="Enter Author">
-    <input type="text" name="title" placeholder="Enter Book Title">
-    <button>Search</button>
-<form>
+<form action="{{ url_for('book_search') }}" method="post">
+    <div class="form-row">
+        <div class="col-md-3 mb-3">
+            <input type="text" name="ISBN" placeholder="Enter ISBN">
+        </div>
+        <div class="col-md-3 mb-3">
+            <input type="text" name="author" placeholder="Enter an Author">
+        </div>
+        <div class="col-md-3 mb-3">
+            <input type="text" name="title" placeholder="Enter Book Title">
+        </div>
+        <div class="col-md-1 mb-3">
+            <button>Search</button>
+        </div>
+    </div>
+</form>
 
 {% endblock %}
