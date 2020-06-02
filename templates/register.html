@@ -26,4 +26,11 @@
         </div>
 {% endif %}
 
+{% if failed %}
+        <div class="alert alert-danger" role="alert">
+            <h2>That username is already taken</h2>
+            <p>Please try a different username.</p>
+        </div>
+{% endif %}
+
 {% endblock %}

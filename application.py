@@ -31,23 +31,33 @@ def index():
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
+    # Redirects to the index if logged in
+    if "user" in session:
+            return redirect(url_for("index"))
+
     # Attempts to register the user based on the information given in the register form
     if request.method == "POST":
         username = request.form.get("username").lower()
         password = request.form.get("password")
-        db.execute("INSERT INTO users (username, password) VALUES (:username, :password)", {"username": username, "password": password})
-        db.commit()
-        return render_template("register.html", success=True)
-    # Returns a page for users to register, or redirects to the index if logged in
+        # Check if the username is taken
+        if db.execute("SELECT username FROM users WHERE username = :username", {"username": username}).fetchone():
+            # Let the user know the username is taken
+            return render_template("register.html", failed=True)
+        else:
+            # Let the user know that their account has been created
+            db.execute("INSERT INTO users (username, password) VALUES (:username, :password)", {"username": username, "password": password})
+            db.commit()
+            return render_template("register.html", success=True)
+    # Returns a page for users to register
     else: #if request.method == "GET":
-        if "user" in session:
-            # Already Logged in
-            return redirect(url_for("index"))
-        # Not logged in currently
         return render_template("register.html")
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    # Redirects to the index if logged in
+    if "user" in session:
+            return redirect(url_for("index"))
+
     # Attempts to log in the user based on the information given in the login form
     if request.method =="POST":
         username = request.form.get("username").lower()
@@ -62,12 +72,8 @@ def login():
             # The information given was not a match
             return render_template("login.html", message="Invalid Credientials", failed=True)
 
-    # Returns a page for users to log in, or redirects to the index if logged in
+    # Returns a page for users to log in
     else: #if request.method == "GET":
-        if "user" in session:
-            # Already Logged in
-            return redirect(url_for("index"))
-        # Not logged in currently
         return render_template("login.html")
 
 # Logs the user out
@@ -164,8 +170,10 @@ def book(isbn):
 # User profile pages that display reviews, and also handle posting new reviews from the isbn form.
 @app.route("/profile/<user>", methods=["GET", "POST"])
 def profile(user):
-    # Keep track of if there has been a new review posted
+    # These variables are for the POST method
     new_review = False
+    message = ""
+    
     if request.method == "POST":
         # Get the users's username
         username = session['user']
@@ -173,19 +181,32 @@ def profile(user):
         isbn = request.form.get("isbn")
         review = request.form.get("review")
         rating = int(request.form.get("rating"))
-        
-        # Add the new review to the database
-        db.execute("INSERT INTO reviews (isbn, username, review, rating) values (:isbn, :username, :review, :rating)",
+
+        # Check if the user already has a review for that book
+        if db.execute("SELECT isbn, username FROM reviews WHERE isbn = :isbn AND username = :username", {"isbn": isbn, "username": username}).fetchone():
+            # If the user does have a review already, update the review
+            db.execute("UPDATE reviews SET rating = :rating, review = :review WHERE isbn = :isbn AND username = :username",
                     {"isbn": isbn, "username": username, "review": review, "rating": rating})
-        db.commit()
+            db.commit()
+
+            # A new review has been added
+            new_review = True
+            message = "Review successfully updated!"
+        else:
+            # Add the new review to the database
+            db.execute("INSERT INTO reviews (isbn, username, review, rating) values (:isbn, :username, :review, :rating)",
+                    {"isbn": isbn, "username": username, "review": review, "rating": rating})
+            db.commit()
         
-        # A new review has been added
-        new_review = True
+            # A new review has been added
+            new_review = True
+            message = "Review successfully added!"
     
+    # No matter the request method, the user's reviews will be displayed
     # Get all the user's reviews and store the result
     users_reviews = db.execute("SELECT r.review, r.rating, r.isbn, books.title FROM reviews r LEFT JOIN books ON books.isbn = r.isbn WHERE r.username = :username", 
-                                {"username": user})
-    return render_template("user.html", user=user, users_reviews=users_reviews, new_review=new_review, message="New review successfully added!")
+                                {"username": user}).fetchall()
+    return render_template("user.html", user=user, users_reviews=users_reviews, new_review=new_review, message=message)
 
 # A form to add individual books to the database
 @app.route("/books/add", methods=["GET","POST"])
@@ -200,7 +221,11 @@ def book_add():
         except ValueError:
             return render_template("books-add.html", failed=True, message='The year you entered was not an integer.')
         
-        if isbn and title and author and year:
+
+        if db.execute("SELECT isbn FROM books WHERE isbn = :isbn", {"isbn": isbn}).fetchone():
+            # If a book with that ISBN is in the database already, let the user know that
+            return render_template("books-add.html", message="The book is already in the database.", failed=True)
+        elif isbn and title and author and year:
             # If they all have values, add the book to the database
             db.execute("INSERT INTO books (title, author, year, isbn) VALUES (:title, :author, :year, :isbn)", 
                     {"title": title, "author": author, "year": year, "isbn": isbn})
@@ -209,7 +234,7 @@ def book_add():
         else:
             # If any are none, let the user know they need to fill in all the blanks
             return render_template("books-add.html", message="Please fill in all of the boxes!", failed=True)
-    else:
+    else: # if request.method == "GET":
         return render_template("books-add.html")
 
 @app.route("/api/<isbn>")
