@@ -2,5 +2,15 @@
 {% block title %}Home{% endblock %}
 {% block header %}My Book Review Website{% endblock %}
 {% block main %}
-<p>This is the landing page.</p>
+<h2>Most Recent Reviews</h2>
+    <ul class="list-unstyled">
+        {% for review in most_recent_reviews %}
+            <li class="border border-light"></li>>
+                Review of <a href="{{ url_for('book', isbn=review.isbn) }}"> {{ review.title }} </a> by <a href="{{ url_for('profile', user=review.username)  }}">{{ review.username }}</a> rating: {{ review.rating }}
+                <ul class="list-unstyled">
+                    <li> {{ review.review }} </li>
+                </ul>
+            </li>
+        {% endfor %}
+    </ul>
 {% endblock %}

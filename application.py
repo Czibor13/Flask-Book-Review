@@ -27,7 +27,8 @@ db = scoped_session(sessionmaker(bind=engine))
 # Returns Homepage
 @app.route("/")
 def index():
-    return render_template("index.html")
+    most_recent_reviews = db.execute("SELECT r.review, r.rating, r.isbn, r.username, books.title FROM reviews r LEFT JOIN books ON books.isbn = r.isbn ORDER BY r.id DESC LIMIT 3").fetchall()
+    return render_template("index.html", most_recent_reviews=most_recent_reviews)
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -173,7 +174,7 @@ def profile(user):
     # These variables are for the POST method
     new_review = False
     message = ""
-    
+
     if request.method == "POST":
         # Get the users's username
         username = session['user']
