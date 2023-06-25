@@ -49,7 +49,7 @@ style.css.map (Map provided by Sass compiler)
 Needs to be run in an enviornment with the following variables set:
 ```
 FLASK_APP (set to application.py)
-DATABASE_URL (Url with information for a PostgreSQL)
+DATABASE_URL (Url with information for a PostgreSQL database)
 GOODREADS_API_KEY (A developer api key from https://www.goodreads.com/api/keys)
 ```
 
